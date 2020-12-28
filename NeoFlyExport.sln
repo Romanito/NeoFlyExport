@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoFlyExport", "NeoFlyExport.csproj", "{4A161670-7665-4914-B411-ACEBB5C4E0D8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4A161670-7665-4914-B411-ACEBB5C4E0D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A161670-7665-4914-B411-ACEBB5C4E0D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A161670-7665-4914-B411-ACEBB5C4E0D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A161670-7665-4914-B411-ACEBB5C4E0D8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5D6F11E7-E0A5-43A8-8135-3EC817238E33}
+	EndGlobalSection
+EndGlobal
