@@ -123,7 +123,8 @@ namespace NeoFlyExport
             // GPX object
             gpxType gpxData = new gpxType()
             {
-                trk = trks.ToArray()
+                trk = trks.ToArray(),
+                creator = "NeoFlyExport " + typeof(NeoFlyData).Assembly.GetName().Version.ToString()
             };
 
             // Write to xml file
