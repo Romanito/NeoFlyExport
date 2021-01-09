@@ -63,6 +63,7 @@ namespace NeoFlyExport
                                 row["FromLon"] = readerFrom.GetDouble(0);
                                 row["FromLat"] = readerFrom.GetDouble(1);
                             }
+                            else continue;
                         }
 
                         // Arrival airport
@@ -75,6 +76,7 @@ namespace NeoFlyExport
                                 row["ToLon"] = readerTo.GetDouble(0);
                                 row["ToLat"] = readerTo.GetDouble(1);
                             }
+                            else continue;
                         }
 
                         TableLog.Rows.Add(row);
@@ -99,7 +101,8 @@ namespace NeoFlyExport
                     name = (string)row["From"],
                     lon = Convert.ToDecimal(row["FromLon"]),
                     lat = Convert.ToDecimal(row["FromLat"]),
-                    time = (DateTime)row["Date"]
+                    time = row.Field<DateTime>("Date").ToUniversalTime(),
+                    timeSpecified = true
                 });
 
                 // Arrival waypoint
