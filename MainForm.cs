@@ -19,10 +19,12 @@ namespace NeoFlyExport
             {
                 neoFlyData.Load();
                 dgvLog.DataSource = neoFlyData.TableLog;
-                dgvLog.Columns["FromLon"].Visible = false;
-                dgvLog.Columns["FromLat"].Visible = false;
-                dgvLog.Columns["ToLon"].Visible = false;
-                dgvLog.Columns["ToLat"].Visible = false;
+                dgvLog.Columns["Id"].Visible = false;
+                foreach (DataGridViewColumn col in dgvLog.Columns)
+                {
+                    col.ReadOnly = col.Name != "Export";
+                }
+                dgvLog.AutoResizeColumns();
                 btnExportGPX.Enabled = true;
             }
             finally
@@ -45,6 +47,16 @@ namespace NeoFlyExport
                     Cursor = Cursors.Default;
                 }
             }
+        }
+
+        private void btnSelectAll_Click(object sender, EventArgs e)
+        {
+            neoFlyData.SelectAllFlights(true);
+        }
+
+        private void btnSelectNone_Click(object sender, EventArgs e)
+        {
+            neoFlyData.SelectAllFlights(false);
         }
     }
 }
