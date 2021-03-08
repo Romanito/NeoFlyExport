@@ -16,6 +16,10 @@ namespace NeoFlyExport
         private DataTable TableTrajectoryLog;
         private DataRelation RelationLoTrajectoryLog;
 
+        public event NeoFlyDataLoadEventHandler LoadStarted;
+        public event NeoFlyDataLoadEventHandler LoadProgress;
+        public event NeoFlyDataLoadEventHandler LoadEnded;
+
         public NeoFlyData()
         {
         }
@@ -67,60 +71,95 @@ namespace NeoFlyExport
 
                 // Log command
                 var commandLog = connection.CreateCommand();
+                commandLog.CommandText = "SELECT COUNT(*) FROM log";
+                int logCount = Convert.ToInt32(commandLog.ExecuteScalar());
+                int currentLog = 0;
+                LoadStarted?.Invoke(this, new NeoFlyDataLoadEventArgs() { RowCount = logCount });
+
+                commandLog = connection.CreateCommand();
                 commandLog.CommandText = "SELECT id, date, fp FROM log ORDER BY date";
                 using (var readerLog = commandLog.ExecuteReader())
                 {
+                    //CultureInfo ciEnUs = new CultureInfo()
                     while (readerLog.Read())
                     {
-                        // Flight
-                        var row = TableLog.NewRow();
-                        row["Id"] = readerLog.GetInt32(0);
-                        row["Date"] = readerLog.GetDateTime(1);
-                        string[] fp = readerLog.GetString(2).Split('>');
-                        row["From"] = fp[0];
-                        row["To"] = fp[1];
-                        row["Export"] = true;
-                        TableLog.Rows.Add(row);
-
-                        // Trajectory
-                        bool trajectoryData = false;
-                        commandTrajectoryLog.Parameters["$flightId"].Value = row["Id"];
-                        using (var readerTrajectoryLog = commandTrajectoryLog.ExecuteReader())
+                        try
                         {
-                            while (readerTrajectoryLog.Read())
-                            {
-                                var trajRow = TableTrajectoryLog.NewRow();
-                                trajRow["Id"] = readerTrajectoryLog.GetInt32(0);
-                                trajRow["FlightId"] = row["Id"];
-                                string[] location = readerTrajectoryLog.GetString(1).Split(',');
-                                trajRow["Lat"] = double.Parse(location[0], CultureInfo.InvariantCulture);
-                                trajRow["Lon"] = double.Parse(location[1], CultureInfo.InvariantCulture);
-                                TableTrajectoryLog.Rows.Add(trajRow);
-                                trajectoryData = true;
-                            }
-                        }
 
-                        // If no trajectory data is available (old NeoFly version), we add two waypoints: departure and arrival
-                        if (!trajectoryData)
-                        {
-                            foreach (string airportId in fp)
+                            // Flight
+                            var row = TableLog.NewRow();
+                            row["Id"] = readerLog.GetInt32(0);
+                            row["Date"] = readerLog.GetDateTime(1);
+                            string[] fp = readerLog.GetString(2).Split('>');
+                            row["From"] = fp[0];
+                            row["To"] = fp[1];
+                            row["Export"] = true;
+                            TableLog.Rows.Add(row);
+
+                            // Trajectory
+                            bool trajectoryData = false;
+                            commandTrajectoryLog.Parameters["$flightId"].Value = row["Id"];
+                            using (var readerTrajectoryLog = commandTrajectoryLog.ExecuteReader())
                             {
-                                commandAirport.Parameters["$ident"].Value = airportId;
-                                using (var readerFrom = commandAirport.ExecuteReader())
+                                while (readerTrajectoryLog.Read())
                                 {
-                                    if (readerFrom.Read())
+                                    var trajRow = TableTrajectoryLog.NewRow();
+                                    trajRow["Id"] = readerTrajectoryLog.GetInt32(0);
+                                    trajRow["FlightId"] = row["Id"];
+
+                                    // The location field may be corrupt, in that case the row is skipped
+                                    string[] location = readerTrajectoryLog.GetString(1).Split(',');
+                                    if (location.Length != 2)
+                                        continue;
+
+                                    // The latitude value is checked
+                                    double coordValue;
+                                    if (!double.TryParse(location[0], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out coordValue))
+                                        continue;
+                                    trajRow["Lat"] = coordValue;
+
+                                    // The longitude value is checked
+                                    if (!double.TryParse(location[1], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out coordValue))
+                                        continue;
+                                    trajRow["Lon"] = coordValue;
+
+                                    // We skip the row is the coordinates are "0,0"
+                                    if ((double)trajRow["Lat"] == 0 && (double)trajRow["Lon"] == 0)
+                                        continue;
+
+                                    TableTrajectoryLog.Rows.Add(trajRow);
+                                    trajectoryData = true;
+                                }
+                            }
+
+                            // If no trajectory data is available (old NeoFly version), we add two waypoints: departure and arrival
+                            if (!trajectoryData)
+                            {
+                                foreach (string airportId in fp)
+                                {
+                                    commandAirport.Parameters["$ident"].Value = airportId;
+                                    using (var readerFrom = commandAirport.ExecuteReader())
                                     {
-                                        var trajRow = TableTrajectoryLog.NewRow();
-                                        trajRow["FlightId"] = row["Id"];
-                                        trajRow["Lat"] = readerFrom.GetDouble(0);
-                                        trajRow["Lon"] = readerFrom.GetDouble(1);
-                                        TableTrajectoryLog.Rows.Add(trajRow);
+                                        if (readerFrom.Read())
+                                        {
+                                            var trajRow = TableTrajectoryLog.NewRow();
+                                            trajRow["FlightId"] = row["Id"];
+                                            trajRow["Lon"] = readerFrom.GetDouble(0);
+                                            trajRow["Lat"] = readerFrom.GetDouble(1);
+                                            TableTrajectoryLog.Rows.Add(trajRow);
+                                        }
                                     }
                                 }
                             }
+
+                        }
+                        finally
+                        {
+                            LoadProgress?.Invoke(this, new NeoFlyDataLoadEventArgs() { CurrentRow = ++currentLog });
                         }
                     }
                 }
+                LoadEnded?.Invoke(this, null);
             }
         }
 
@@ -132,11 +171,14 @@ namespace NeoFlyExport
 
             foreach (DataRow row in TableLog.AsEnumerable().Where(row => row.Field<bool>("Export")))
             {
+                // Trajectory waypoints
+                DataRow[] trajectoryWaypoints = row.GetChildRows(RelationLoTrajectoryLog);
+                if (trajectoryWaypoints.Length < 1)
+                    continue;
+
                 // Waypoint list
                 List<wptType> wpts = new List<wptType>();
-
-                // Trajectory waypoints
-                foreach (DataRow dataRow in row.GetChildRows(RelationLoTrajectoryLog))
+                foreach (DataRow dataRow in trajectoryWaypoints)
                 {
                     wpts.Add(new wptType()
                     {
@@ -186,4 +228,12 @@ namespace NeoFlyExport
         // Returns true if at least one flight has been selected for export
         public bool HasSelectedFlights => TableLog.AsEnumerable().Any(row => row.Field<bool>("Export"));
     }
+
+    public class NeoFlyDataLoadEventArgs : EventArgs
+    {
+        public int CurrentRow { get; set; }
+        public int RowCount { get; set; }
+    }
+
+    public delegate void NeoFlyDataLoadEventHandler(object sender, NeoFlyDataLoadEventArgs e);
 }
