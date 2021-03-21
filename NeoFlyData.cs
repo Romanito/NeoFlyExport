@@ -48,6 +48,7 @@ namespace NeoFlyExport
             TableTrajectoryLog.Columns.Add("FlightId", typeof(int));
             TableTrajectoryLog.Columns.Add("Lon", typeof(double));
             TableTrajectoryLog.Columns.Add("Lat", typeof(double));
+            TableTrajectoryLog.Columns.Add("Altitude", typeof(int));
 
             // Relation between flight and flight trajectory
             RelationLoTrajectoryLog = DataSetNeoFlyData.Relations.Add(TableLog.Columns["Id"], TableTrajectoryLog.Columns["FlightId"]);
@@ -59,13 +60,13 @@ namespace NeoFlyExport
 
                 // Airport command
                 var commandAirport = connection.CreateCommand();
-                commandAirport.CommandText = "SELECT lonx, laty FROM airport WHERE ident = $ident";
+                commandAirport.CommandText = "SELECT lonx, laty, altitude FROM airport WHERE ident = $ident";
                 commandAirport.Parameters.Add("$ident", SqliteType.Text);
                 commandAirport.Prepare();
 
                 // Trajectory log command
                 var commandTrajectoryLog = connection.CreateCommand();
-                commandTrajectoryLog.CommandText = "SELECT id, location FROM trajectoryLog WHERE flightId = $flightId ORDER BY id";
+                commandTrajectoryLog.CommandText = "SELECT id, location, altitude FROM trajectoryLog WHERE flightId = $flightId ORDER BY id";
                 commandTrajectoryLog.Parameters.Add("$flightId", SqliteType.Integer);
                 commandTrajectoryLog.Prepare();
 
@@ -80,7 +81,6 @@ namespace NeoFlyExport
                 commandLog.CommandText = "SELECT id, date, fp FROM log ORDER BY date";
                 using (var readerLog = commandLog.ExecuteReader())
                 {
-                    //CultureInfo ciEnUs = new CultureInfo()
                     while (readerLog.Read())
                     {
                         try
@@ -114,14 +114,17 @@ namespace NeoFlyExport
 
                                     // The latitude value is checked
                                     double coordValue;
-                                    if (!double.TryParse(location[0], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out coordValue))
+                                    if (!double.TryParse(location[0], NumberStyles.Float, CultureInfo.InvariantCulture, out coordValue))
                                         continue;
                                     trajRow["Lat"] = coordValue;
 
                                     // The longitude value is checked
-                                    if (!double.TryParse(location[1], NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out coordValue))
+                                    if (!double.TryParse(location[1], NumberStyles.Float, CultureInfo.InvariantCulture, out coordValue))
                                         continue;
                                     trajRow["Lon"] = coordValue;
+
+                                    // Altitude
+                                    trajRow["Altitude"] = readerTrajectoryLog.GetInt32(2);
 
                                     // We skip the row is the coordinates are "0,0"
                                     if ((double)trajRow["Lat"] == 0 && (double)trajRow["Lon"] == 0)
@@ -146,6 +149,7 @@ namespace NeoFlyExport
                                             trajRow["FlightId"] = row["Id"];
                                             trajRow["Lon"] = readerFrom.GetDouble(0);
                                             trajRow["Lat"] = readerFrom.GetDouble(1);
+                                            trajRow["Altitude"] = readerFrom.GetInt32(2);
                                             TableTrajectoryLog.Rows.Add(trajRow);
                                         }
                                     }
@@ -166,6 +170,8 @@ namespace NeoFlyExport
         // Exports in-memory data to a GPX fiile
         public void ExportToGPXFile(string gpxFilePath)
         {
+            const double footMeterRatio = 0.3048;
+
             // Segment list
             List<trkType> trks = new List<trkType>();
 
@@ -183,7 +189,9 @@ namespace NeoFlyExport
                     wpts.Add(new wptType()
                     {
                         lon = Convert.ToDecimal(dataRow["Lon"]),
-                        lat = Convert.ToDecimal(dataRow["Lat"])
+                        lat = Convert.ToDecimal(dataRow["Lat"]),
+                        ele = Convert.ToDecimal((int)dataRow["Altitude"] / footMeterRatio),
+                        eleSpecified = true
                     });
                 }
 
