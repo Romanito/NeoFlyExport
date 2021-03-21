@@ -14,20 +14,22 @@
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <IsWebBootstrapper>true</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
+    <InstallFrom>Web</InstallFrom>
+    <UpdateEnabled>true</UpdateEnabled>
     <UpdateMode>Foreground</UpdateMode>
     <UpdateInterval>7</UpdateInterval>
     <UpdateIntervalUnits>Days</UpdateIntervalUnits>
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>false</MapFileExtensions>
+    <InstallUrl>https://raw.githubusercontent.com/Romanito/NeoFlyExport/master/publish/</InstallUrl>
+    <UpdateUrl>https://raw.githubusercontent.com/Romanito/NeoFlyExport/master/publish/</UpdateUrl>
     <ProductName>NeoFlyExport</ProductName>
     <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.1.1.0</ApplicationVersion>
+    <ApplicationVersion>1.1.2.0</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
@@ -146,7 +148,28 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\departure.ico" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\licence.txt" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\Microsoft.Data.Sqlite.dll" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\NeoFlyExport.exe" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\runtimes\win-arm\native\e_sqlite3.dll" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\runtimes\win-x64\native\e_sqlite3.dll" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\runtimes\win-x86\native\e_sqlite3.dll" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\SQLitePCLRaw.batteries_v2.dll" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\SQLitePCLRaw.core.dll" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\SQLitePCLRaw.nativelibrary.dll" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\SQLitePCLRaw.provider.dynamic_cdecl.dll" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\System.Buffers.dll" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\System.Memory.dll" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\System.Numerics.Vectors.dll" />
+    <Content Include="publish\Application Files\NeoFlyExport_1_1_2_0\System.Runtime.CompilerServices.Unsafe.dll" />
+    <Content Include="publish\setup.exe" />
     <Content Include="readme.md" />
+    <None Include="publish\Application Files\NeoFlyExport_1_1_2_0\NeoFlyExport.application" />
+    <None Include="publish\Application Files\NeoFlyExport_1_1_2_0\NeoFlyExport.exe.config" />
+    <None Include="publish\Application Files\NeoFlyExport_1_1_2_0\NeoFlyExport.exe.manifest" />
+    <None Include="publish\Application Files\NeoFlyExport_1_1_2_0\readme.md" />
+    <None Include="publish\NeoFlyExport.application" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
