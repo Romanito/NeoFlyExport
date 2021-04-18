@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NeoFlyExport.Properties;
+using System;
+using System.IO;
 using System.Windows.Forms;
 
 namespace NeoFlyExport
@@ -15,6 +17,7 @@ namespace NeoFlyExport
         private void MainForm_Shown(object sender, EventArgs e)
         {
             LoadData();
+            BindSettings();
         }
 
         // Loads data from the database and binds it to the datagrid
@@ -23,8 +26,8 @@ namespace NeoFlyExport
             try
             {
                 Cursor = Cursors.WaitCursor;
-                pbLoad.Visible = true;
-                tableLayoutPanel.Enabled = false;
+                tspbLoad.Visible = true;
+                Enabled = false;
 
                 neoFlyData.LoadStarted += NeoFlyData_LoadStarted;
                 neoFlyData.LoadProgress += NeoFlyData_LoadProgress;
@@ -38,28 +41,28 @@ namespace NeoFlyExport
                     col.ReadOnly = col.Name != "Export";
                 }
                 dgvLog.AutoResizeColumns();
-                tableLayoutPanel.Enabled = true;
+                Enabled = true;
             }
             finally
             {
-                pbLoad.Visible = false;
+                tspbLoad.Visible = false;
                 Cursor = Cursors.Default;
             }
         }
 
         private void NeoFlyData_LoadStarted(object sender, NeoFlyDataLoadEventArgs e)
         {
-            pbLoad.Maximum = e.RowCount;
+            tspbLoad.Maximum = e.RowCount;
         }
 
         private void NeoFlyData_LoadProgress(object sender, NeoFlyDataLoadEventArgs e)
         {
-            pbLoad.Value = e.CurrentRow;
-            pbLoad.Value = e.CurrentRow - 1; // Dirty trick to make the progress bar reach 100% https://stackoverflow.com/a/5332770
+            tspbLoad.Value = e.CurrentRow;
+            tspbLoad.Value = e.CurrentRow - 1; // Dirty trick to make the progress bar reach 100% https://stackoverflow.com/a/5332770
             Application.DoEvents();
         }
 
-        private void btnExportGPX_Click(object sender, EventArgs e)
+        private void tsbExportGPX_Click(object sender, EventArgs e)
         {
             if (sfdGPX.ShowDialog() == DialogResult.OK)
             {
@@ -73,14 +76,15 @@ namespace NeoFlyExport
                     Cursor = Cursors.Default;
                 }
             }
+
         }
 
-        private void btnSelectAll_Click(object sender, EventArgs e)
+        private void tsbSelectAll_Click(object sender, EventArgs e)
         {
             neoFlyData.SelectAllFlights(true);
         }
 
-        private void btnSelectNone_Click(object sender, EventArgs e)
+        private void tsbSelectNone_Click(object sender, EventArgs e)
         {
             neoFlyData.SelectAllFlights(false);
         }
@@ -98,6 +102,75 @@ namespace NeoFlyExport
                 }
             }
 
+        }
+
+        private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Properties.Settings.Default.Save();
+        }
+
+        private void tsddbExportExternalViewer_ButtonClick(object sender, EventArgs e)
+        {
+            try
+            {
+                // Exports the current selection to a temporary file and opens it in an external viewer
+                Cursor = Cursors.WaitCursor;
+                neoFlyData.ExportToExternalViewer();
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        private void dgvLog_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            try
+            {
+                // Exports the current flight to a temporary file and opens it in an external viewer
+                Cursor = Cursors.WaitCursor;
+                int logId = (int)dgvLog.Rows[e.RowIndex].Cells["Id"].Value;
+                neoFlyData.ExportToExternalViewer(logId);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
+        }
+
+        private void tsbSettings_Click(object sender, EventArgs e)
+        {
+            new SettingsForm().ShowDialog();
+            BindSettings();
+        }
+
+        private void BindSettings()
+        {
+            tsddbExportExternalViewer.Visible = Settings.Default.ExternalViewers.Count > 0;
+            tsddbExportExternalViewer.DropDownItems.Clear();
+            foreach (var viewer in Settings.Default.ExternalViewers)
+            {
+                tsddbExportExternalViewer.DropDownItems.Add(new ToolStripButton()
+                {
+                    Text = Path.GetFileNameWithoutExtension(viewer),
+                    DisplayStyle = ToolStripItemDisplayStyle.Text,
+                    ToolTipText = viewer
+                });
+            }
+        }
+
+        private void tsddbExportExternalViewer_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            try
+            {
+                // Exports the current selection to a temporary file and opens it in an external viewer
+                Cursor = Cursors.WaitCursor;
+                neoFlyData.ExportToExternalViewer(0, e.ClickedItem.ToolTipText);
+            }
+            finally
+            {
+                Cursor = Cursors.Default;
+            }
         }
     }
 }

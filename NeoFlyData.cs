@@ -1,7 +1,9 @@
 ﻿using Microsoft.Data.Sqlite;
+using NeoFlyExport.Properties;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -15,6 +17,7 @@ namespace NeoFlyExport
         public DataTable TableLog { get; private set; }
         private DataTable TableTrajectoryLog;
         private DataRelation RelationLoTrajectoryLog;
+        private string tempFileName;
 
         public event NeoFlyDataLoadEventHandler LoadStarted;
         public event NeoFlyDataLoadEventHandler LoadProgress;
@@ -24,7 +27,15 @@ namespace NeoFlyExport
         {
         }
 
-        // Loads database data into in-memory objects
+        ~NeoFlyData()
+        {
+            if (File.Exists(tempFileName))
+                File.Delete(tempFileName);
+        }
+
+        /// <summary>
+        /// Loads database data into in-memory objects
+        /// </summary>
         public void Load()
         {
             // NeoFly database file path
@@ -167,15 +178,26 @@ namespace NeoFlyExport
             }
         }
 
-        // Exports in-memory data to a GPX fiile
-        public void ExportToGPXFile(string gpxFilePath)
+        /// <summary>
+        /// Exports in-memory data to a GPX file
+        /// </summary>
+        /// <param name="gpxFilePath">Exported file path</param>
+        /// <param name="logId">Log ID to be exported. If omitted, all checked rows are exported.</param>
+        public void ExportToGPXFile(string gpxFilePath, int logId = 0)
         {
             const double footMeterRatio = 0.3048;
 
             // Segment list
             List<trkType> trks = new List<trkType>();
 
-            foreach (DataRow row in TableLog.AsEnumerable().Where(row => row.Field<bool>("Export")))
+            // Rows to be exported
+            IEnumerable<DataRow> exportRows;
+            if (logId == 0)
+                exportRows = TableLog.AsEnumerable().Where(row => row.Field<bool>("Export"));
+            else
+                exportRows = TableLog.AsEnumerable().Where(row => row.Field<int>("Id") == logId);
+
+            foreach (DataRow row in exportRows)
             {
                 // Trajectory waypoints
                 DataRow[] trajectoryWaypoints = row.GetChildRows(RelationLoTrajectoryLog);
@@ -224,6 +246,22 @@ namespace NeoFlyExport
                 xmlSerializer.Serialize(swFile, gpxData);
         }
 
+        // Exports the current selection to a temporary file and opens it in an external viewer
+        public void ExportToExternalViewer(int logId = 0, string commandLine = null)
+        {
+            // If no external viewer is provided, use the default one
+            if (commandLine == null)
+                commandLine = Settings.Default.DefaultExternalViewer;
+
+            // If no external viewer is set, exception
+            if (commandLine == null)
+                throw new NoExternalViewerException();
+
+            tempFileName = Path.Combine(Path.GetTempPath(), "NeoFlyExport.gpx");
+            ExportToGPXFile(tempFileName, logId);
+            Process.Start(commandLine, tempFileName);
+        }
+
         // Select all or none flight for export
         public void SelectAllFlights(bool selected)
         {
@@ -244,4 +282,6 @@ namespace NeoFlyExport
     }
 
     public delegate void NeoFlyDataLoadEventHandler(object sender, NeoFlyDataLoadEventArgs e);
+
+    public class NoExternalViewerException : Exception { }
 }

@@ -30,16 +30,18 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.sfdGPX = new System.Windows.Forms.SaveFileDialog();
-            this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.toolStripBottom = new System.Windows.Forms.ToolStrip();
+            this.tsbExportGPX = new System.Windows.Forms.ToolStripButton();
+            this.tsddbExportExternalViewer = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsbSettings = new System.Windows.Forms.ToolStripButton();
+            this.toolStripTop = new System.Windows.Forms.ToolStrip();
+            this.tsbSelectAll = new System.Windows.Forms.ToolStripButton();
+            this.tsbSelectNone = new System.Windows.Forms.ToolStripButton();
+            this.tspbLoad = new System.Windows.Forms.ToolStripProgressBar();
             this.dgvLog = new System.Windows.Forms.DataGridView();
-            this.btnExportGPX = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.btnSelectNone = new System.Windows.Forms.Button();
-            this.btnSelectAll = new System.Windows.Forms.Button();
-            this.pbLoad = new System.Windows.Forms.ProgressBar();
-            this.tableLayoutPanel.SuspendLayout();
+            this.toolStripBottom.SuspendLayout();
+            this.toolStripTop.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvLog)).BeginInit();
-            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // sfdGPX
@@ -47,23 +49,89 @@
             this.sfdGPX.DefaultExt = "gpx";
             this.sfdGPX.Filter = "GPX files|*.gpx";
             // 
-            // tableLayoutPanel
+            // toolStripBottom
             // 
-            this.tableLayoutPanel.ColumnCount = 1;
-            this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel.Controls.Add(this.dgvLog, 0, 1);
-            this.tableLayoutPanel.Controls.Add(this.btnExportGPX, 0, 2);
-            this.tableLayoutPanel.Controls.Add(this.panel1, 0, 0);
-            this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.FixedSize;
-            this.tableLayoutPanel.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel.Name = "tableLayoutPanel";
-            this.tableLayoutPanel.RowCount = 3;
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 31F));
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 37F));
-            this.tableLayoutPanel.Size = new System.Drawing.Size(498, 575);
-            this.tableLayoutPanel.TabIndex = 2;
+            this.toolStripBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.toolStripBottom.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.toolStripBottom.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStripBottom.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbExportGPX,
+            this.tsddbExportExternalViewer,
+            this.tsbSettings});
+            this.toolStripBottom.Location = new System.Drawing.Point(0, 670);
+            this.toolStripBottom.Name = "toolStripBottom";
+            this.toolStripBottom.Padding = new System.Windows.Forms.Padding(5);
+            this.toolStripBottom.Size = new System.Drawing.Size(602, 34);
+            this.toolStripBottom.TabIndex = 4;
+            this.toolStripBottom.Text = "toolStrip1";
+            // 
+            // tsbExportGPX
+            // 
+            this.tsbExportGPX.Image = global::NeoFlyExport.Properties.Resources.export_16;
+            this.tsbExportGPX.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbExportGPX.Name = "tsbExportGPX";
+            this.tsbExportGPX.Size = new System.Drawing.Size(131, 21);
+            this.tsbExportGPX.Text = "Export to GPX file";
+            this.tsbExportGPX.Click += new System.EventHandler(this.tsbExportGPX_Click);
+            // 
+            // tsddbExportExternalViewer
+            // 
+            this.tsddbExportExternalViewer.Image = global::NeoFlyExport.Properties.Resources.route_16;
+            this.tsddbExportExternalViewer.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsddbExportExternalViewer.Name = "tsddbExportExternalViewer";
+            this.tsddbExportExternalViewer.Size = new System.Drawing.Size(185, 21);
+            this.tsddbExportExternalViewer.Text = "Export to external viewer";
+            this.tsddbExportExternalViewer.Visible = false;
+            this.tsddbExportExternalViewer.ButtonClick += new System.EventHandler(this.tsddbExportExternalViewer_ButtonClick);
+            this.tsddbExportExternalViewer.DropDownItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.tsddbExportExternalViewer_DropDownItemClicked);
+            // 
+            // tsbSettings
+            // 
+            this.tsbSettings.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tsbSettings.Image = global::NeoFlyExport.Properties.Resources.settings_16;
+            this.tsbSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSettings.Name = "tsbSettings";
+            this.tsbSettings.Size = new System.Drawing.Size(74, 21);
+            this.tsbSettings.Text = "Settings";
+            this.tsbSettings.Click += new System.EventHandler(this.tsbSettings_Click);
+            // 
+            // toolStripTop
+            // 
+            this.toolStripTop.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.toolStripTop.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStripTop.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbSelectAll,
+            this.tsbSelectNone,
+            this.tspbLoad});
+            this.toolStripTop.Location = new System.Drawing.Point(0, 0);
+            this.toolStripTop.Name = "toolStripTop";
+            this.toolStripTop.Padding = new System.Windows.Forms.Padding(5);
+            this.toolStripTop.Size = new System.Drawing.Size(602, 34);
+            this.toolStripTop.TabIndex = 5;
+            // 
+            // tsbSelectAll
+            // 
+            this.tsbSelectAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbSelectAll.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSelectAll.Name = "tsbSelectAll";
+            this.tsbSelectAll.Size = new System.Drawing.Size(63, 21);
+            this.tsbSelectAll.Text = "Select all";
+            this.tsbSelectAll.Click += new System.EventHandler(this.tsbSelectAll_Click);
+            // 
+            // tsbSelectNone
+            // 
+            this.tsbSelectNone.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbSelectNone.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSelectNone.Name = "tsbSelectNone";
+            this.tsbSelectNone.Size = new System.Drawing.Size(79, 21);
+            this.tsbSelectNone.Text = "Select none";
+            this.tsbSelectNone.Click += new System.EventHandler(this.tsbSelectNone_Click);
+            // 
+            // tspbLoad
+            // 
+            this.tspbLoad.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.tspbLoad.Name = "tspbLoad";
+            this.tspbLoad.Size = new System.Drawing.Size(200, 21);
             // 
             // dgvLog
             // 
@@ -73,94 +141,52 @@
             this.dgvLog.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvLog.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvLog.Location = new System.Drawing.Point(3, 34);
+            this.dgvLog.Location = new System.Drawing.Point(0, 34);
             this.dgvLog.Name = "dgvLog";
             this.dgvLog.RowHeadersVisible = false;
             this.dgvLog.RowTemplate.Height = 25;
             this.dgvLog.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvLog.Size = new System.Drawing.Size(492, 501);
-            this.dgvLog.TabIndex = 1;
+            this.dgvLog.Size = new System.Drawing.Size(602, 636);
+            this.dgvLog.TabIndex = 7;
             this.dgvLog.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvLog_CellContentClick);
-            // 
-            // btnExportGPX
-            // 
-            this.btnExportGPX.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnExportGPX.Location = new System.Drawing.Point(3, 542);
-            this.btnExportGPX.Name = "btnExportGPX";
-            this.btnExportGPX.Size = new System.Drawing.Size(134, 30);
-            this.btnExportGPX.TabIndex = 2;
-            this.btnExportGPX.Text = "Export to GPX file";
-            this.btnExportGPX.UseVisualStyleBackColor = true;
-            this.btnExportGPX.Click += new System.EventHandler(this.btnExportGPX_Click);
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.pbLoad);
-            this.panel1.Controls.Add(this.btnSelectNone);
-            this.panel1.Controls.Add(this.btnSelectAll);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Margin = new System.Windows.Forms.Padding(0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(498, 31);
-            this.panel1.TabIndex = 3;
-            // 
-            // btnSelectNone
-            // 
-            this.btnSelectNone.Location = new System.Drawing.Point(84, 5);
-            this.btnSelectNone.Name = "btnSelectNone";
-            this.btnSelectNone.Size = new System.Drawing.Size(75, 23);
-            this.btnSelectNone.TabIndex = 5;
-            this.btnSelectNone.Text = "Select none";
-            this.btnSelectNone.UseVisualStyleBackColor = true;
-            this.btnSelectNone.Click += new System.EventHandler(this.btnSelectNone_Click);
-            // 
-            // btnSelectAll
-            // 
-            this.btnSelectAll.Location = new System.Drawing.Point(3, 5);
-            this.btnSelectAll.Name = "btnSelectAll";
-            this.btnSelectAll.Size = new System.Drawing.Size(75, 23);
-            this.btnSelectAll.TabIndex = 4;
-            this.btnSelectAll.Text = "Select all";
-            this.btnSelectAll.UseVisualStyleBackColor = true;
-            this.btnSelectAll.Click += new System.EventHandler(this.btnSelectAll_Click);
-            // 
-            // pbLoad
-            // 
-            this.pbLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.pbLoad.Location = new System.Drawing.Point(386, 5);
-            this.pbLoad.Name = "pbLoad";
-            this.pbLoad.Size = new System.Drawing.Size(109, 23);
-            this.pbLoad.TabIndex = 6;
-            this.pbLoad.Visible = false;
+            this.dgvLog.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvLog_CellDoubleClick);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Window;
-            this.ClientSize = new System.Drawing.Size(498, 575);
-            this.Controls.Add(this.tableLayoutPanel);
+            this.ClientSize = new System.Drawing.Size(602, 704);
+            this.Controls.Add(this.dgvLog);
+            this.Controls.Add(this.toolStripTop);
+            this.Controls.Add(this.toolStripBottom);
+            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "NeoFlyExport";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.Shown += new System.EventHandler(this.MainForm_Shown);
-            this.tableLayoutPanel.ResumeLayout(false);
+            this.toolStripBottom.ResumeLayout(false);
+            this.toolStripBottom.PerformLayout();
+            this.toolStripTop.ResumeLayout(false);
+            this.toolStripTop.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvLog)).EndInit();
-            this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
         private System.Windows.Forms.SaveFileDialog sfdGPX;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
+        private System.Windows.Forms.ToolStrip toolStripBottom;
+        private System.Windows.Forms.ToolStrip toolStripTop;
+        private System.Windows.Forms.ToolStripButton tsbSelectAll;
+        private System.Windows.Forms.ToolStripButton tsbSelectNone;
+        private System.Windows.Forms.ToolStripProgressBar tspbLoad;
+        private System.Windows.Forms.ToolStripButton tsbExportGPX;
+        private System.Windows.Forms.ToolStripSplitButton tsddbExportExternalViewer;
+        private System.Windows.Forms.ToolStripButton tsbSettings;
         private System.Windows.Forms.DataGridView dgvLog;
-        private System.Windows.Forms.Button btnExportGPX;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button btnSelectNone;
-        private System.Windows.Forms.Button btnSelectAll;
-        private System.Windows.Forms.ProgressBar pbLoad;
     }
 }
 
