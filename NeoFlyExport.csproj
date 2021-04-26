@@ -111,6 +111,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandLine.cs" />
     <Compile Include="formats\gpx.cs">
       <DependentUpon>gpx.xsd</DependentUpon>
     </Compile>

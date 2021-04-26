@@ -5,7 +5,13 @@ Small program that reads [NeoFly](https://www.neofly.net/)'s logbook and exports
 ## Usage
 
 * Launch NeoFlyExpert.exe to use the interface mode.
-* Launch NeoFlyExpert.exe with a file name as an argument to export the logbook to a file without showing the interface.
+* Launch NeoFlyExpert.exe with command line arguments to automate data export:
+	
+		--file         File name to export the data to
+		--dateFrom     Exports data from this date and after
+		--dateTo       Exports data from this date and before
+		
+		Ex:  NeoFlyExport.exe --file=Neofly.gpx --dateFrom=2021-04-01 --dateTo=2021-04-30
 
 ## External viewer
 
@@ -17,6 +23,10 @@ Tested viewers:
 * [Viking](https://sourceforge.net/projects/viking/)
 * [GPXSee](https://www.gpxsee.org/)
 * [GpsPrune](https://activityworkshop.net/software/gpsprune/)
+
+## Resources
+
+Project home page: https://github.com/Romanito/NeoFlyExport
 
 ## Credits
 

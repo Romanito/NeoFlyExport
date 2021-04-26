@@ -14,8 +14,7 @@ namespace NeoFlyExport
         [STAThread]
         static void Main()
         {
-            string[] args = Environment.GetCommandLineArgs();
-            if (args.Length <= 1)
+            if (CommandLine.Arguments.Count == 0)
             {
                 SearchExternalViewers();
                 Application.EnableVisualStyles();
@@ -24,9 +23,16 @@ namespace NeoFlyExport
             }
             else
             {
-                NeoFlyData neoFlyData = new NeoFlyData();
-                neoFlyData.Load();
-                neoFlyData.ExportToGPXFile(args[1]);
+                try
+                {
+                    NeoFlyData neoFlyData = new NeoFlyData();
+                    neoFlyData.Load();
+                    neoFlyData.ExportToGPXFile(CommandLine.Arguments);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "NeoFlyExport error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 

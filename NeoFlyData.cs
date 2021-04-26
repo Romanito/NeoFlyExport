@@ -181,10 +181,14 @@ namespace NeoFlyExport
         /// <summary>
         /// Exports in-memory data to a GPX file
         /// </summary>
-        /// <param name="gpxFilePath">Exported file path</param>
-        /// <param name="logId">Log ID to be exported. If omitted, all checked rows are exported.</param>
-        public void ExportToGPXFile(string gpxFilePath, int logId = 0)
+        /// <param name="options">Export options in key-value pairs</param>
+        public void ExportToGPXFile(Dictionary<string, string> options)
         {
+            if (!options.ContainsKey("file"))
+            {
+                throw new ExportOptionException("Provide a file name to export to.\nEx: NeoFlyExport.exe --file=neofly.gpx");
+            }
+
             const double footMeterRatio = 0.3048;
 
             // Segment list
@@ -192,10 +196,36 @@ namespace NeoFlyExport
 
             // Rows to be exported
             IEnumerable<DataRow> exportRows;
-            if (logId == 0)
+
+            // If only the file name is provided, we export all selected rows
+            if (options.Count == 1)
                 exportRows = TableLog.AsEnumerable().Where(row => row.Field<bool>("Export"));
+
+            // If a log ID is provided, we export only this one
+            else if (options.ContainsKey("logid"))
+                exportRows = TableLog.AsEnumerable().Where(row => row.Field<int>("Id").ToString() == options["logid"]);
+
+            // Other filters are processed
             else
-                exportRows = TableLog.AsEnumerable().Where(row => row.Field<int>("Id") == logId);
+            {
+                exportRows = TableLog.AsEnumerable();
+
+                // dateFrom: Exports all rows after this date
+                if (options.ContainsKey("datefrom"))
+                {
+                    if (!DateTime.TryParse(options["datefrom"], out DateTime dateFrom))
+                        throw new ExportOptionException($"Incorrect dateFrom value: {options["datefrom"]}.");
+                    exportRows = exportRows.Where(row => row.Field<DateTime>("Date").Date >= dateFrom.Date);
+                }
+
+                // dateTo: Exports all rows before this date
+                if (options.ContainsKey("dateto"))
+                {
+                    if (!DateTime.TryParse(options["dateto"], out DateTime dateTo))
+                        throw new ExportOptionException($"Incorrect dateTo value: {options["dateto"]}.");
+                    exportRows = exportRows.Where(row => row.Field<DateTime>("Date").Date <= dateTo.Date);
+                }
+            }
 
             foreach (DataRow row in exportRows)
             {
@@ -226,7 +256,7 @@ namespace NeoFlyExport
                 // Track
                 trkType trk = new trkType()
                 {
-                    name = row["From"] + ">" + row["To"],
+                    name = $"{row["From"]}>{row["To"]}",
                     trkseg = new trksegType[1]
                 };
                 trk.trkseg[0] = new trksegType() { trkpt = wpts.ToArray() };
@@ -242,8 +272,22 @@ namespace NeoFlyExport
 
             // Write to xml file
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(gpxType));
-            using (var swFile = new StreamWriter(gpxFilePath))
+            using (var swFile = new StreamWriter(options["file"]))
                 xmlSerializer.Serialize(swFile, gpxData);
+        }
+
+        /// <summary>
+        /// Exports in-memory data to a GPX file
+        /// </summary>
+        /// <param name="gpxFilePath">Exported file path</param>
+        /// <param name="logId">Log ID to be exported. If omitted, all checked rows are exported.</param>
+        public void ExportToGPXFile(string gpxFilePath, int logId = 0)
+        {
+            Dictionary<string, string> options = new Dictionary<string, string>();
+            options.Add("file", gpxFilePath);
+            if (logId != 0)
+                options.Add("logid", logId.ToString());
+            ExportToGPXFile(options);
         }
 
         // Exports the current selection to a temporary file and opens it in an external viewer
@@ -284,4 +328,8 @@ namespace NeoFlyExport
     public delegate void NeoFlyDataLoadEventHandler(object sender, NeoFlyDataLoadEventArgs e);
 
     public class NoExternalViewerException : Exception { }
+    public class ExportOptionException : Exception
+    {
+        public ExportOptionException(string message) : base(message) { }
+    }
 }
